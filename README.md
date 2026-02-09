@@ -66,7 +66,7 @@ Then, a list of weights is applied:
 The following formula is executed for each event, i.e., one per user and leaderboard (or crunch):
 
 ``` math
-\text{prize\_pool} \times \text{rank\_weight} \times \text{target\_weight} \times \text{phase\_weight}
+\text{raw\_points} = \text{prize\_pool} \times \text{rank\_weight} \times \text{target\_weight} \times \text{phase\_weight}
 ```
 
 ### Legacy Competitions
@@ -82,6 +82,9 @@ Over time, the event will have a smaller and smaller impact. The following decay
 ```
 
 Then, the raw points are multiplied by this factor to determine the number of points for a given date.
+
+> [!NOTE]
+> The decay constant currently used is around 500 days, but it may change in the future.
 
 ## Participations & Institutions
 
