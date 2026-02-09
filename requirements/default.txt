@@ -1,0 +1,9 @@
+lxml
+beautifulsoup4
+mysql-connector-python
+python-slugify
+tqdm
+python-dotenv
+openai
+pandas
+requests
