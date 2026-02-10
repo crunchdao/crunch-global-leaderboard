@@ -33,7 +33,7 @@ setup(
     author_email=about["__author_email__"],
     url=about["__url__"],
     packages=find_packages(),
-    python_requires=">=3",
+    python_requires=">=3.11",
     install_requires=requirements,
     extras_require={
         "test": test_requirements,
@@ -41,7 +41,7 @@ setup(
     zip_safe=False,
     classifiers=[
         "Intended Audience :: Developers",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.11",
     ],
     keywords="package development template"
 )
