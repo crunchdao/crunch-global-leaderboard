@@ -1,8 +1,8 @@
 from datetime import date as Date
 from datetime import datetime as DateTime
-from typing import Literal, NewType, Optional, TypeAlias, TypedDict
+from typing import Literal, NewType, Optional, TypedDict
 
-from typing_extensions import ReadOnly
+from typing_extensions import ReadOnly, TypeAlias
 
 UniversityId = NewType("UniversityId", int)
 UserId = NewType("UserId", int)
@@ -19,7 +19,6 @@ TargetId = NewType("TargetId", int)
 CrunchId = NewType("CrunchId", int)
 TeamId = NewType("TeamId", int)
 TeamMemberId = NewType("TeamMemberId", int)
-PayoutId = NewType("PayoutId", int)
 InstitutionId = NewType("InstitutionId", int)
 InstitutionName = NewType("InstitutionName", str)
 InstitutionMemberId = NewType("InstitutionMemberId", int)

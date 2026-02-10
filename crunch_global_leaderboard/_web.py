@@ -140,7 +140,7 @@ def rephrase_description(
         Website Description: {description}
     """)
 
-    response = openai_client.responses.create(
+    response = openai_client.responses.create(  # pyright: ignore[reportAttributeAccessIssue]
         model="gpt-4.1-nano",
         instructions=system_prompt,
         input=user_prompt,
