@@ -13,6 +13,7 @@ This repository contains the core implementation of the [Crunch Global Leaderboa
   - [Decayed Points](#decayed-points)
   - [Participations \& Institutions](#participations--institutions)
   - [Positions](#positions)
+- [Programming Decision](#programming-decision)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -101,6 +102,17 @@ If you are the first, an institution will be created with your university's name
 After completing all the previous steps, the leaderboard positions are finally computed and ranked.
 
 A history is kept so you can see your progress over the years.
+
+# Programming Decision
+
+It was decided that [type safety](./crunch_global_leaderboard/_model.py) should be prioritized over convenience and that regular objects should be used instead of data frames.
+This allows static type analyzers to alert us immediately if anything is wrong.
+Although entity IDs are all integers, we trick Python into thinking they are their own types.
+
+We use the repository pattern to fully load the database and speed up lookups because the network is slow.
+
+Using typed dictionaries instead of data classes adds weight to development but offers the same benefits as JavaScript objects: speed.
+However, we lose access to class methods.
 
 # Contributing
 
