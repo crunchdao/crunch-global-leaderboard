@@ -1,11 +1,10 @@
 import math
-import os
 from collections import defaultdict
-from logging import Logger
 from datetime import date, datetime, time
-from threading import Lock
+from logging import Logger
 from typing import DefaultDict, Dict, List, Optional, TypedDict, cast
 
+from openai import OpenAI
 from slugify import slugify
 from tqdm.auto import tqdm
 
@@ -16,12 +15,6 @@ from crunch_global_leaderboard._point import compute_decayed_points, compute_raw
 from crunch_global_leaderboard._repository import LoadEverythingRepository, Repository
 from crunch_global_leaderboard._utility import group_by, rank_by_points
 from crunch_global_leaderboard._web import get_site_descriptions
-
-DATABASE_HOST = os.environ["DATABASE_HOST"]
-DATABASE_USER = os.environ["DATABASE_USER"]
-DATABASE_PASSWORD = os.environ["DATABASE_PASSWORD"]
-ACCOUNT_SERVICE_DATABASE_NAME = os.environ.get("ACCOUNT_SERVICE_DATABASE_NAME", f"tournament_account_service")
-COMPETITION_SERVICE_DATABASE_NAME = os.environ.get("COMPETITION_SERVICE_DATABASE_NAME", f"tournament_competition_service")
 
 
 def _compute_events(
@@ -88,7 +81,7 @@ def _compute_institutions(
     all_events_by_user_id: Dict[UserId, List[Event]],
     repository: Repository,
     skip_university_description: bool = False,
-    rephrase_university_descriptions: bool = False,
+    openai_client: Optional[OpenAI] = None,
 ):
     users_by_institution_name: DefaultDict[InstitutionName, List[User]] = defaultdict(list)
     university_by_institution_name: Dict[InstitutionName, University] = {}
@@ -123,12 +116,12 @@ def _compute_institutions(
         {}
         if skip_university_description
         else get_site_descriptions(
-            {
+            universities={
                 key: university_by_institution_name[key]
                 for key in users_by_institution_name.keys()
                 if key not in institution_by_name
             },
-            rephrase=rephrase_university_descriptions,
+            openai_client=openai_client
         )
     )
 
@@ -401,65 +394,54 @@ def _compute_user_postitions(
     )
 
 
-_lock = Lock()
-
-
 def compute(
+    *,
+    database: Database,
     dates: List[date],
     logger: Logger,
+    openai_client: Optional[OpenAI] = None,
 ):
     dates = sorted(dates)
 
-    database = Database(
-        host=DATABASE_HOST,
-        user=DATABASE_USER,
-        password=DATABASE_PASSWORD,
-        account_service_name=ACCOUNT_SERVICE_DATABASE_NAME,
-        competition_service_name=COMPETITION_SERVICE_DATABASE_NAME,
-        enable_caching=False,
-        commit_on_close=True,
+    repository = LoadEverythingRepository(
+        database=database,
     )
 
-    with _lock, database:
-        repository = LoadEverythingRepository(
-            database=database,
-        )
+    users = repository.find_all_users()
+    competitions = repository.find_all_competitions()
 
-        users = repository.find_all_users()
-        competitions = repository.find_all_competitions()
+    (
+        all_events_by_user_id,
+    ) = _compute_events(
+        users=users,
+        competitions=competitions,
+        repository=repository,
+    )
 
-        (
-            all_events_by_user_id,
-        ) = _compute_events(
-            users=users,
-            competitions=competitions,
-            repository=repository,
-        )
+    (
+        participation_count_per_date_per_user_id,
+    ) = _compute_participations(
+        dates=dates,
+        users=users,
+        repository=repository,
+    )
 
-        (
-            participation_count_per_date_per_user_id,
-        ) = _compute_participations(
-            dates=dates,
-            users=users,
-            repository=repository,
-        )
+    (
+        institution_by_user_id,
+        _created_institution_count,
+    ) = _compute_institutions(
+        all_events_by_user_id=all_events_by_user_id,
+        repository=repository,
+        openai_client=openai_client,
+    )
 
-        (
-            institution_by_user_id,
-            _created_institution_count,
-        ) = _compute_institutions(
-            all_events_by_user_id=all_events_by_user_id,
-            repository=repository,
-            rephrase_university_descriptions=True,
-        )
+    logger.info(f"created {_created_institution_count} institutions")
 
-        logger.info(f"created {_created_institution_count} institutions")
-
-        _compute_user_postitions(
-            dates=dates,
-            users=users,
-            all_events_by_user_id=all_events_by_user_id,
-            institution_by_user_id=institution_by_user_id,
-            participation_count_per_date_per_user_id=participation_count_per_date_per_user_id,
-            repository=repository,
-        )
+    _compute_user_postitions(
+        dates=dates,
+        users=users,
+        all_events_by_user_id=all_events_by_user_id,
+        institution_by_user_id=institution_by_user_id,
+        participation_count_per_date_per_user_id=participation_count_per_date_per_user_id,
+        repository=repository,
+    )

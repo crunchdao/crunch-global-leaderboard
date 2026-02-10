@@ -1,4 +1,3 @@
-import os
 from multiprocessing.pool import ThreadPool
 from textwrap import dedent
 from typing import Dict, Optional, Tuple
@@ -13,12 +12,6 @@ from urllib3.exceptions import InsecureRequestWarning
 from crunch_global_leaderboard._model import InstitutionName, University
 
 CHROME_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-
-
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
-openai_client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-)
 
 
 def _get_html(
@@ -81,10 +74,11 @@ def get_site_description(
 
 
 def get_site_descriptions(
+    *,
     universities: Dict[InstitutionName, University],
-    rephrase: bool = False,
     quiet: bool = False,
     max_workers: int = 16,
+    openai_client: Optional[OpenAI] = None,
 ):
     with ThreadPool(processes=max_workers) as pool:
         def fetch(entry: Tuple[InstitutionName, University]):
@@ -99,10 +93,11 @@ def get_site_descriptions(
                 quiet=quiet,
             )
 
-            if description is not None and rephrase:
+            if description is not None and openai_client is not None:
                 description = rephrase_description(
-                    university,
-                    description,
+                    university=university,
+                    description=description,
+                    openai_client=openai_client,
                 )
 
                 if not quiet:
@@ -117,8 +112,10 @@ def get_site_descriptions(
 
 
 def rephrase_description(
+    *,
     university: University,
     description: str,
+    openai_client: OpenAI,
 ):
     fallback_sentence = "Not possible"
 
