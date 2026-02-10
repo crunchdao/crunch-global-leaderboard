@@ -251,7 +251,7 @@ def to_table_name(
 
     if name.endswith("y"):
         return f"{name[:-1]}ies"
-    elif name.endswith("s") or name.endswith("h"):
+    elif name.endswith("s") or name.endswith("h") or name.endswith("x"):
         return f"{name}es"
     else:
         return f"{name}s"
