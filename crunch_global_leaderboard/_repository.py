@@ -253,7 +253,11 @@ class LoadEverythingRepository(Repository):
         def _load_users():
             self._users = self._database.competition.query_many_objects(
                 User,
-                where="`id` IN (SELECT DISTINCT `user_id` FROM `positions`) OR `id` IN (SELECT DISTINCT `user_id` FROM `team_members`)"
+                where="""
+                    `id` IN (SELECT DISTINCT `user_id` FROM `positions`)
+                    OR `id` IN (SELECT DISTINCT `user_id` FROM `team_members`)
+                    OR `id` IN (SELECT DISTINCT `user_id` FROM `payout_recipients`)
+                """
             )
 
             self._user_by_id = to_dict(
