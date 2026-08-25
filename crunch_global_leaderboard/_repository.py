@@ -561,16 +561,16 @@ class LoadEverythingRepository(Repository):
         return self._default_leaderboard_definition_by_competition_id[competition["id"]]
 
     def find_all_usable_targets(self, competition: Competition) -> List[Target]:
-        return self._usable_targets_by_competition_id[competition["id"]]
+        return self._usable_targets_by_competition_id.get(competition["id"]) or []
 
     def find_all_rounds(self, competition: Competition) -> List[Round]:
-        return self._rounds_by_competition_id[competition["id"]]
+        return self._rounds_by_competition_id.get(competition["id"]) or []
 
     def find_all_phases(self, round: Round) -> List[Phase]:
-        return self._phases_by_round_id[round["id"]]
+        return self._phases_by_round_id.get(round["id"]) or []
 
     def find_all_crunches(self, phase: Phase) -> List[Crunch]:
-        return self._crunches_by_phase_id[phase["id"]]
+        return self._crunches_by_phase_id.get(phase["id"]) or []
 
     def find_crunch_target(self, crunch: Crunch, target: Target) -> CrunchTarget:
         return self._crunch_target_by_crunch_id_and_target_id[(crunch["id"], target["id"])]
