@@ -21,12 +21,13 @@ This repository contains the core implementation of the [Crunch Global Leaderboa
 
 ```mermaid
 graph LR
-    A[Events] --> B[Raw Points]
-    B --> |Apply decay| C[Decayed Points]
-    C --> D[Positions]
-    A --> E[Participations]
-    E --> F[Institutions]
-    F --> D
+    A[Participations] --> B[Events]
+    B --> C[Raw Points]
+    C --> |Apply decay| D[Decayed Points]
+    D --> E[User Positions]
+    A --> F[Institutions]
+    F --> G[Institution Positions]
+	  D --> G
 ```
 
 ## Events
