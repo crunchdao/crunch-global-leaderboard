@@ -118,7 +118,7 @@ class DatabaseAccess:
         self,
         statement: str,
         *,
-        params: Optional[Tuple[Any]] = None,
+        params: Optional[Tuple[Any, ...]] = None,
         type: Type[T] = dict,
     ) -> List[T]:
         cursor = self._mysql.cursor()
@@ -151,7 +151,7 @@ class DatabaseAccess:
     def insert(
         self,
         statement: str,
-        params: Optional[Tuple[Any]] = None,
+        params: Optional[Tuple[Any, ...]] = None,
     ) -> int:
         cursor = self._mysql.cursor()
         cursor.execute(statement, params)
