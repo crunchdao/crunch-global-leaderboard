@@ -251,6 +251,7 @@ class DatabaseAccess:
         return cursor.lastrowid
 
 
+@cache
 def to_table_name(
     type: Type[T],
 ) -> str:
@@ -264,6 +265,7 @@ def to_table_name(
         return f"{name}s"
 
 
+@cache
 def to_column_names(
     type: Type[T],
     *,
