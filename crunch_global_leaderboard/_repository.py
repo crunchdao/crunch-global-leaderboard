@@ -703,22 +703,22 @@ class LoadEverythingRepository(Repository):
 
         self._database.competition.insert(
             "DELETE FROM `global_user_positions` WHERE `leaderboard_id` = %s",
-            (global_leaderboard_id,),
+            params=(global_leaderboard_id,),
         )
 
         self._database.competition.insert(
             "DELETE FROM `global_institution_positions` WHERE `leaderboard_id` = %s",
-            (global_leaderboard_id,),
+            params=(global_leaderboard_id,),
         )
 
         self._database.competition.insert(
             "DELETE FROM `institution_participations` WHERE `leaderboard_id` = %s",
-            (global_leaderboard_id,),
+            params=(global_leaderboard_id,),
         )
 
         self._database.competition.insert(
             "DELETE FROM `global_leaderboards` WHERE `id` = %s",
-            (global_leaderboard_id,),
+            params=(global_leaderboard_id,),
         )
 
         del self._global_leaderboard_by_date[date]

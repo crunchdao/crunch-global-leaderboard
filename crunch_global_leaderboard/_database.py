@@ -138,11 +138,13 @@ class DatabaseAccess:
         self,
         statement: str,
         *,
+        params: Optional[Tuple[Any, ...]] = None,
         type: Type[T] = dict,
     ) -> Optional[T]:
         return next(
             iter(self.query_many(
                 statement,
+                params=params,
                 type=type,
             )),
             None,
@@ -151,6 +153,7 @@ class DatabaseAccess:
     def insert(
         self,
         statement: str,
+        *,
         params: Optional[Tuple[Any, ...]] = None,
     ) -> int:
         cursor = self._mysql.cursor()
@@ -165,6 +168,7 @@ class DatabaseAccess:
         table_name: Optional[str] = None,
         where: Optional[str] = None,
         order_by: Optional[str] = None,
+        params: Optional[Tuple[Any, ...]] = None,
     ) -> List[T]:
         columns = to_column_names(type)
         table_name = table_name or to_table_name(type)
@@ -180,6 +184,7 @@ class DatabaseAccess:
         return self.query_many(
             statement=statement,
             type=type,
+            params=params,
         )
 
     def query_first_object(
@@ -188,12 +193,14 @@ class DatabaseAccess:
         *,
         table_name: Optional[str] = None,
         where: Optional[str] = None,
+        params: Optional[Tuple[Any, ...]] = None,
     ) -> Optional[T]:
         return next(
             iter(self.query_many_objects(
                 type=type,
                 table_name=table_name,
                 where=where,
+                params=params,
             )),
             None,
         )
