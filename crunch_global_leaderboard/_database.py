@@ -83,6 +83,7 @@ class Database:
 
             connection.close()
 
+        self.current_database_name = None
         self._connection = None
 
 
