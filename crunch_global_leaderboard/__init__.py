@@ -2,7 +2,7 @@ import math
 from collections import defaultdict
 from datetime import date, datetime, time
 from logging import Logger
-from typing import DefaultDict, Dict, List, Optional, TypedDict, cast
+from typing import DefaultDict, Dict, List, Optional, Set, TypedDict, cast
 
 from openai import OpenAI
 from slugify import slugify
@@ -247,6 +247,7 @@ def _compute_user_postitions(
     participation_count_per_date_per_user_id: Dict[UserId, Dict[date, int]],
     repository: Repository,
 ):
+    saved_user_ids: Set[UserId] = set()
     user_positions_per_date: Dict[date, List[GlobalUserPositionBody]] = {}
 
     for today in tqdm(dates, unit="date", miniters=1):
@@ -321,6 +322,8 @@ def _compute_user_postitions(
                 "submission_count": submission_count_per_user.get(user_id, 0),
             })
 
+            saved_user_ids.add(user_id)
+
         _apply_user_ties(daily_user_positions)
 
         user_positions_by_institution_id = group_by(
@@ -391,6 +394,7 @@ def _compute_user_postitions(
 
     return (
         user_positions_per_date,
+        len(saved_user_ids),
     )
 
 
@@ -428,20 +432,31 @@ def compute(
 
     (
         institution_by_user_id,
-        _created_institution_count,
+        created_institution_count,
     ) = _compute_institutions(
         all_events_by_user_id=all_events_by_user_id,
         repository=repository,
         openai_client=openai_client,
     )
 
-    logger.info(f"created {_created_institution_count} institutions")
+    logger.info(f"created {created_institution_count} institutions")
 
-    _compute_user_postitions(
+    non_deleted_users = [
+        user
+        for user in users
+        if not user["login"].startswith("deleted-")  # TODO competition database don't have access to deleted state
+    ]
+
+    (
+        _user_positions_per_date,
+        saved_user_ids_count,
+    ) = _compute_user_postitions(
         dates=dates,
-        users=users,
+        users=non_deleted_users,
         all_events_by_user_id=all_events_by_user_id,
         institution_by_user_id=institution_by_user_id,
         participation_count_per_date_per_user_id=participation_count_per_date_per_user_id,
         repository=repository,
     )
+
+    logger.info(f"saved {saved_user_ids_count} users (usable base: {len(non_deleted_users)}/{len(users)})")
