@@ -24,7 +24,7 @@ class Database:
         self._host = host
         self._user = user
         self._password = password
-        self.cashe_enabled = enable_caching
+        self.cache_enabled = enable_caching
         self.commit_on_close = commit_on_close
 
         self._account_access = DatabaseAccess(self, account_service_name)
@@ -96,7 +96,7 @@ class DatabaseAccess:
         self._database = database
         self._database_name = database_name
 
-        if database.cashe_enabled:
+        if database.cache_enabled:
             cached_query_all = cache(self.query_many)
             self.query_many = lambda statement, **kwargs: [  # type: ignore
                 row.copy()
