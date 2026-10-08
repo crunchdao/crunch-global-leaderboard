@@ -37,12 +37,12 @@ def test_to_table_name_handles_multi_word_camel_case():
 
 def test_to_column_names_without_table_name():
     result = to_column_names(User)
-    assert result == "`id`, `login`, `university`"
+    assert result == "`id`, `login`, `university`, `deleted`"
 
 
 def test_to_column_names_with_table_name():
     result = to_column_names(User, table_name="users")
-    assert result == "`users`.`id`, `users`.`login`, `users`.`university`"
+    assert result == "`users`.`id`, `users`.`login`, `users`.`university`, `users`.`deleted`"
 
 
 def test_to_column_names_single_column():

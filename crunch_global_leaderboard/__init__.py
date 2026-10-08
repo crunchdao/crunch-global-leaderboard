@@ -444,7 +444,7 @@ def compute(
     non_deleted_users = [
         user
         for user in users
-        if not user["login"].startswith("deleted-")  # TODO competition database don't have access to deleted state
+        if not user["deleted"]
     ]
 
     (

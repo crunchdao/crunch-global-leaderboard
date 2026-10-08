@@ -36,6 +36,7 @@ class User(TypedDict):
     id: ReadOnly[UserId]
     login: str
     university: Optional[str]
+    deleted: bool
 
 
 CompetitionMode: TypeAlias = Literal["OFFLINE", "REAL_TIME"]
