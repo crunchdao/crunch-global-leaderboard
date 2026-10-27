@@ -79,6 +79,7 @@ def get_site_descriptions(
     quiet: bool = False,
     max_workers: int = 16,
     openai_client: Optional[OpenAI] = None,
+    model_name: Optional[str] = None,
 ):
     with ThreadPool(processes=max_workers) as pool:
         def fetch(entry: Tuple[InstitutionName, University]):
@@ -98,6 +99,7 @@ def get_site_descriptions(
                     university=university,
                     description=description,
                     openai_client=openai_client,
+                    model_name=model_name,
                 )
 
                 if not quiet:
@@ -116,6 +118,7 @@ def rephrase_description(
     university: University,
     description: str,
     openai_client: OpenAI,
+    model_name: Optional[str],
 ):
     fallback_sentence = "Not possible"
 
@@ -141,10 +144,9 @@ def rephrase_description(
     """)
 
     response = openai_client.responses.create(  # pyright: ignore[reportAttributeAccessIssue]
-        model="gpt-4.1-nano",
+        model=model_name or "gpt-6-luna",
         instructions=system_prompt,
         input=user_prompt,
-        temperature=0.0,
     )
 
     output_text = response.output_text

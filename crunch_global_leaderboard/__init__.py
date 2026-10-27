@@ -82,6 +82,7 @@ def _compute_institutions(
     repository: Repository,
     skip_university_description: bool = False,
     openai_client: Optional[OpenAI] = None,
+    model_name: Optional[str] = None,
 ):
     users_by_institution_name: DefaultDict[InstitutionName, List[User]] = defaultdict(list)
     university_by_institution_name: Dict[InstitutionName, University] = {}
@@ -121,7 +122,8 @@ def _compute_institutions(
                 for key in users_by_institution_name.keys()
                 if key not in institution_by_name
             },
-            openai_client=openai_client
+            openai_client=openai_client,
+            model_name=model_name,
         )
     )
 
@@ -404,6 +406,7 @@ def compute(
     dates: List[date],
     logger: Logger,
     openai_client: Optional[OpenAI] = None,
+    model_name: Optional[str] = None,
 ):
     dates = sorted(dates)
 
@@ -437,6 +440,7 @@ def compute(
         all_events_by_user_id=all_events_by_user_id,
         repository=repository,
         openai_client=openai_client,
+        model_name=model_name,
     )
 
     logger.info(f"created {created_institution_count} institutions")
